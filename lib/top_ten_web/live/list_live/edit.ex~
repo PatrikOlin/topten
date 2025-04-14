@@ -1,0 +1,245 @@
+defmodule TopTenWeb.ListLive.Edit do
+  use TopTenWeb, :live_view
+  alias TopTen.Lists
+  alias TopTen.Lists.TopTenList
+  alias TopTen.Items.Item
+
+  @impl true
+  def mount(%{"slug" => slug}, _session, socket) do
+    case Lists.get_list_by_slug!(slug) do
+      %TopTenList{} = list ->
+        # Convert DB items to the format used in the form
+        form_items = 
+          Enum.sort_by(list.items, & &1.position)
+          |> Enum.map(fn item -> 
+            %{
+              id: "item-#{item.position}",
+              position: item.position,
+              content: item.content,
+              notes: item.notes
+            }
+          end)
+            
+        next_position = (List.last(form_items) || %{position: 0}).position + 1
+          
+        {:ok,
+         socket
+         |> assign(:list, list)
+         |> assign(:changeset, Lists.change_top_ten_list(list))
+         |> assign(:items, form_items)
+         |> assign(:next_position, next_position)
+        }
+        
+      _ ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Lista hittades inte.")
+         |> redirect(to: ~p"/")}
+    end
+  end
+
+  @impl true
+  def handle_event("add-item", _params, socket) do
+    if length(socket.assigns.items) >= 10 do
+      {:noreply, socket}
+    else
+      position = socket.assigns.next_position
+      new_item = %{id: "item-#{position}", position: position, content: "", notes: ""}
+
+      {:noreply,
+       socket
+       |> assign(:items, socket.assigns.items ++ [new_item])
+       |> assign(:next_position, position + 1)
+      }
+    end
+  end
+
+  @impl true
+  def handle_event("remove-item", %{"position" => position}, socket) do
+    position = String.to_integer(position)
+
+    if length(socket.assigns.items) <= 1 do
+      {:noreply, socket}
+    else
+      remaining_items = Enum.reject(socket.assigns.items, &(&1.position == position))
+
+      updated_items =
+        remaining_items
+        |> Enum.sort_by(& &1.position)
+        |> Enum.with_index(1)
+        |> Enum.map(fn {item, new_pos} ->
+          %{id: "item-#{new_pos}", position: new_pos, content: item.content, notes: item.notes}
+        end)
+
+      {:noreply,
+       socket
+       |> assign(:items, updated_items)
+       |> assign(:next_position, length(updated_items) + 1)}
+    end
+  end
+
+  @impl true
+  def handle_event("save", %{"top_ten_list" => list_params, "items" => items_params}, socket) do
+    items = 
+      socket.assigns.items
+      |> Enum.map(fn item -> 
+        item_key = Integer.to_string(item.position)
+        item_data = Map.get(items_params, item_key, %{})
+        
+        %{
+          position: item.position,
+          content: Map.get(item_data, "content", ""),
+          notes: Map.get(item_data, "notes", "")
+        }
+      end)
+    
+    case Lists.update_top_ten_list(socket.assigns.list, list_params, items) do
+      {:ok, list} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Lista uppdaterad!")
+         |> redirect(to: ~p"/lists/#{list.slug}")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
+  @impl true
+  def handle_event("validate", %{"top_ten_list" => list_params, "items" => items_params}, socket) do
+    changeset =
+      socket.assigns.list
+      |> Lists.change_top_ten_list(list_params)
+      |> Map.put(:action, :validate)
+
+    updated_items =
+      Enum.map(socket.assigns.items, fn item ->
+        item_key = Integer.to_string(item.position)
+        item_data = Map.get(items_params, item_key, %{})
+
+        %{
+          id: item.id,
+          position: item.position,
+          content: Map.get(item_data, "content", item.content),
+          notes: Map.get(item_data, "notes", item.notes)
+        }
+      end)
+
+    {:noreply,
+     socket
+     |> assign(:changeset, changeset)
+     |> assign(:items, updated_items)
+    }
+  end
+
+  @impl true
+  def handle_event("reorder", %{"positions" => positions}, socket) do
+    new_order =
+      positions
+      |> Enum.map(fn {id, position} ->
+	position_int = if is_integer(position), do: position, else: String.to_integer(position)
+	{id, position_int}
+      end)
+      |> Enum.sort_by(fn {_, position} -> position end)
+
+    updated_items =
+      new_order
+      |> Enum.with_index(1)
+      |> Enum.map(fn {{id, _}, new_position} ->
+	original_item = Enum.find(socket.assigns.items, fn item -> item.id == id end)
+
+	%{
+	  id: id,
+	  position: new_position,
+	  content: original_item.content,
+	  notes: original_item.notes
+	}
+      end)
+
+    {:noreply, assign(socket, items: updated_items)}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-3xl font-bold mb-6">Redigera lista</h1>
+      
+      <.form
+        :let={f}
+        for={@changeset}
+        id="list-form"
+        phx-change="validate"
+        phx-submit="save"
+      >
+        <div class="space-y-6">
+          <div>
+            <.input field={f[:title]} label="Titel" placeholder="Ett fräckt namn" required />
+          </div>
+          
+          <div>
+            <.input field={f[:description]} type="textarea" label="Beskrivning" placeholder="Skriv en rad till ditt försvar..." />
+          </div>
+          
+          <div class="pt-4">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold">Listrader (<%= length(@items) %>/10)</h2>
+              
+              <button 
+                :if={length(@items) < 10}
+                type="button" 
+                phx-click="add-item" 
+                class="bg-lorange-100 hover:bg-lorange-80 text-white py-1 px-3 rounded text-sm"
+              >
+                + Lägg till rad
+              </button>
+            </div>
+            
+	    <div class="space-y-4" id="items-container" phx-hook="Sortable">
+	      <%= for item <- @items do %>
+	      <fieldset class="border dark:border-lorange-40 rounded-lg p-4 relative cursor-move" 
+		id={"#{item.id}"} 
+		data-position={item.position}>
+		<div class="flex items-center justify-between">
+		  <legend class="font-bold px-2">Rad #<%= item.position %></legend>
+        
+		  <div class="flex items-center">
+		    <button 
+		      :if={length(@items) > 1}
+		      type="button" 
+		      phx-click="remove-item" 
+		      phx-value-position={item.position}
+		      class="text-red-500 hover:text-red-700 mr-2"
+		      aria-label="Ta bort rad"
+		    >
+		      ✕
+		    </button>
+          
+		    <div class="text-gray-400 cursor-move">
+		      ⠿
+		    </div>
+		  </div>
+		</div>
+      
+		<div class="space-y-3">
+		  <.input name={"items[#{item.position}][content]"} value={item.content} label="Innehåll" placeholder="!?" required />
+		  <.input name={"items[#{item.position}][notes]"} value={item.notes} label="Förklaring (valfritt)"
+                    placeholder="Vad menar du?" />
+		</div>
+	      </fieldset>
+	      <% end %>
+	    </div>
+	  </div>
+          
+          <div class="pt-4">
+            <.button class="dark:bg-lorange-100 dark:text-stone-200 dark:hover:bg-lorange-80" type="submit" phx-disable-with="Uppdaterar...">
+              Spara ändringar
+            </.button>
+            <a href={~p"/lists/#{@list.slug}"} class="ml-4 text-gray-600 dark:text-stone-200 hover:underline">Avbryt</a>
+          </div>
+        </div>
+      </.form>
+    </div>
+    """
+  end
+end

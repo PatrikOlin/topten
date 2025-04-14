@@ -1,0 +1,8 @@
+<.header>
+  Edit Top ten list {@top_ten_list.id}
+  <:subtitle>Use this form to manage top_ten_list records in your database.</:subtitle>
+</.header>
+
+<.top_ten_list_form changeset={@changeset} action={~p"/top_ten_lists/#{@top_ten_list}"} />
+
+<.back navigate={~p"/top_ten_lists"}>Back to top_ten_lists</.back>

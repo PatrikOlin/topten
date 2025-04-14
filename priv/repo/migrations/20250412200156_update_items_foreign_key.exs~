@@ -1,0 +1,7 @@
+defmodule TopTen.Repo.Migrations.UpdateItemsForeignKey do
+  use Ecto.Migration
+
+  def change do
+
+  end
+end

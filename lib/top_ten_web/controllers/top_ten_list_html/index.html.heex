@@ -1,0 +1,24 @@
+<.header>
+  Listing Top ten lists
+  <:actions>
+    <.link href={~p"/top_ten_lists/new"}>
+      <.button>New Top ten list</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table id="top_ten_lists" rows={@top_ten_lists} row_click={&JS.navigate(~p"/top_ten_lists/#{&1}")}>
+  <:col :let={top_ten_list} label="Title">{top_ten_list.title}</:col>
+  <:col :let={top_ten_list} label="Description">{top_ten_list.description}</:col>
+  <:action :let={top_ten_list}>
+    <div class="sr-only">
+      <.link navigate={~p"/top_ten_lists/#{top_ten_list}"}>Show</.link>
+    </div>
+    <.link navigate={~p"/top_ten_lists/#{top_ten_list}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={top_ten_list}>
+    <.link href={~p"/top_ten_lists/#{top_ten_list}"} method="delete" data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </:action>
+</.table>

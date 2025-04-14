@@ -1,0 +1,16 @@
+<.header>
+  Top ten list {@top_ten_list.id}
+  <:subtitle>This is a top_ten_list record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/top_ten_lists/#{@top_ten_list}/edit"}>
+      <.button>Edit top_ten_list</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Title">{@top_ten_list.title}</:item>
+  <:item title="Description">{@top_ten_list.description}</:item>
+</.list>
+
+<.back navigate={~p"/top_ten_lists"}>Back to top_ten_lists</.back>

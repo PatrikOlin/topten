@@ -1,0 +1,23 @@
+<header class="px-4 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
+    <div class="flex items-center gap-4">
+      <a href="/">
+	 <img src={~p"/images/top10.svg"} alt="TOP10 Logo" class="h-12" />
+      </a>
+    </div>
+      <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
+	     <a href="/lists/new" class="bg-lorange-100 flex flex-row gap-2 hover:bg-lorange-80 text-white font-bold py-2 px-4 rounded">
+	  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+	  <path stroke-linecap="round" stroke-linejoin="round" d="M8.242 5.992h12m-12 6.003H20.24m-12 5.999h12M4.117 7.495v-3.75H2.99m1.125 3.75H2.99m1.125 0H5.24m-1.92 2.577a1.125 1.125 0 1 1 1.591 1.59l-1.83 1.83h2.16M2.99 15.745h1.125a1.125 1.125 0 0 1 0 2.25H3.74m0-.002h.375a1.125 1.125 0 0 1 0 2.25H2.99" />
+	  </svg>
+	   Skapa ny lista
+        </a>
+    </div>
+  </div>
+</header>
+<main class="px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-2xl">
+    <.flash_group flash={@flash} />
+    <%= @inner_content %>
+  </div>
+</main>

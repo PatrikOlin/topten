@@ -1,0 +1,17 @@
+<.header>
+  Item {@item.id}
+  <:subtitle>This is a item record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/items/#{@item}/edit"}>
+      <.button>Edit item</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Content">{@item.content}</:item>
+  <:item title="Position">{@item.position}</:item>
+  <:item title="Notes">{@item.notes}</:item>
+</.list>
+
+<.back navigate={~p"/items"}>Back to items</.back>

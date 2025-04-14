@@ -1,0 +1,7 @@
+defmodule TopTen.Repo.Migrations.AddSlugToTopTenLists do
+  use Ecto.Migration
+
+  def change do
+
+  end
+end

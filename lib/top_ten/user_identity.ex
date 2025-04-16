@@ -1,0 +1,13 @@
+defmodule TopTen.UserIdentity do
+  @adjectives ~w(Brave Clever Daring Eager Fierce Gentle Happy Intrepid Jolly Kind Lively Mighty Noble Optimistic Cynical Quick Radiant Swift Tenacious Upbeat Valiant Wise Xenial Youthful Zealous)
+  @nouns ~w(Alligator Bear Cat Donkey Elephant Fox Giraffe Hawk Iguana Jaguar Koala Lion Liger Monkey Nightingale Octopus Penguin Quokka Rabbit Sloth Tiger Tigon Unicorn Vulture Wolf Xerus Yak Zebra)
+
+  def generate_random_name do
+    "#{Enum.random(@adjectives)}#{Enum.random(@nouns)}"
+  end
+
+  def generate_user_id do
+    :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+  end
+
+end

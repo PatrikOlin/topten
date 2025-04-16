@@ -6,8 +6,9 @@ defmodule TopTenWeb.PageLive do
   import TopTenWeb.ListComponents
 
   @impl true
-  def mount(_parans, _session, socket) do
+  def mount(_parans, session, socket) do
     lists = Lists.list_recent_lists(10)
+    user_identity = session["user_identity"]
     sort_options = [
       {"Senaste", "newest"},
       {"Bästa", "best"},
@@ -18,7 +19,8 @@ defmodule TopTenWeb.PageLive do
 		 lists: lists,
 		 filtered_lists: lists,
 		 sort_options: sort_options,
-		 current_sort: "newest"
+		 current_sort: "newest",
+		 current_user: user_identity
 	  )}
   end
 

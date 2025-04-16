@@ -6,6 +6,8 @@ defmodule TopTen.Items.Item do
     field :position, :integer
     field :content, :string
     field :notes, :string
+    field :creator_id, :string
+    field :creator_name, :string
     belongs_to :top_ten_list, TopTen.Lists.TopTenList, foreign_key: :list_id
 
     timestamps(type: :utc_datetime)
@@ -14,7 +16,7 @@ defmodule TopTen.Items.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:content, :position, :notes, :list_id])
+    |> cast(attrs, [:content, :position, :notes, :list_id, :creator_id, :creator_name])
     |> validate_required([:content, :position])
   end
 end

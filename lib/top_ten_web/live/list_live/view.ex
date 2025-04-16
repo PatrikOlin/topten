@@ -92,9 +92,14 @@ defmodule TopTenWeb.ListLive.View do
 	  </ol>
 	</div>
 	<div class="flex flex-row justify-between gap-4 w-full border-t border-lorange-100 pt-4">
-	  <span class="font-normal text-sm text-stone-400">
-	    Poäng: <%= @list.rating %>
-	  </span>
+	  <div class="flex flex-col font-normal text-sm text-stone-400">
+	    <span class="text-stone-400">
+	      Poäng: <%= @list.rating %>
+	    </span>
+	    <span class="text-stone-200" :if={@list.creator_name != nil}>
+	      Skapare: <span class="text-lorange-100 font-semibold"><%= @list.creator_name %></span>
+	    </span>
+	  </div>
 	  <div>
 	    <button class=" hover:text-lorange-100" type="button" phx-click="vote" phx-value-vote={"up"}>
 	      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

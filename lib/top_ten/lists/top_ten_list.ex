@@ -7,6 +7,8 @@ defmodule TopTen.Lists.TopTenList do
     field :title, :string
     field :slug, :string
     field :rating, :integer, default: 0
+    field :creator_id, :string
+    field :creator_name, :string
     has_many :items, TopTen.Items.Item, foreign_key: :list_id
 
     timestamps(type: :utc_datetime)
@@ -15,7 +17,7 @@ defmodule TopTen.Lists.TopTenList do
   @doc false
   def changeset(top_ten_list, attrs) do
     top_ten_list
-    |> cast(attrs, [:title, :description, :slug])
+    |> cast(attrs, [:title, :description, :slug, :creator_id, :creator_name])
     |> validate_required([:title])
     |> generate_slug()
   end

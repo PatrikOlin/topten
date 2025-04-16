@@ -5,7 +5,8 @@ defmodule TopTenWeb.ListLive.New do
   alias TopTen.Lists.Item
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+
     {:ok,
      socket
      |> assign(:changeset, Lists.change_top_ten_list(%TopTenList{}))
@@ -21,7 +22,9 @@ defmodule TopTenWeb.ListLive.New do
       {:noreply, socket}
     else
       position = socket.assigns.next_position
-      new_item = %{id: "item-#{position}", position: position, content: "", notes: ""}
+      user_name = socket.assigns.current_user.name
+      user_id = socket.assigns.current_user.id
+      new_item = %{id: "item-#{position}", position: position, content: "", notes: "", creator_id: user_id, creator_name: user_name }
 
       {:noreply,
        socket
@@ -70,9 +73,16 @@ defmodule TopTenWeb.ListLive.New do
         %{
           position: item.position,
           content: Map.get(item_data, "content", ""),
-          notes: Map.get(item_data, "notes", "")
+          notes: Map.get(item_data, "notes", ""),
+	  creator_id: socket.assigns.current_user.id,
+	  creator_name: socket.assigns.current_user.name
         }
       end)
+    
+    list_params = Map.merge(list_params, %{
+		    "creator_id" => socket.assigns.current_user.id,
+		    "creator_name" => socket.assigns.current_user.name,
+		  }) 
     
     # Add debugging
     IO.inspect(list_params, label: "List params")

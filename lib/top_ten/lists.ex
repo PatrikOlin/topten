@@ -105,25 +105,25 @@ defmodule TopTen.Lists do
     TopTenList.changeset(top_ten_list, attrs)
   end
 
-def update_top_ten_list(%TopTenList{} = list, attrs, items) do
-  Repo.transaction(fn ->
-    # Update the list itself
-    list_changeset = TopTenList.changeset(list, attrs)
-    {:ok, updated_list} = Repo.update(list_changeset)
+  def update_top_ten_list(%TopTenList{} = list, attrs, items) do
+    Repo.transaction(fn ->
+      # Update the list itself
+      list_changeset = TopTenList.changeset(list, attrs)
+      {:ok, updated_list} = Repo.update(list_changeset)
     
-    # Delete all existing items
-    Repo.delete_all(from(i in Item, where: i.list_id == ^list.id))
+      # Delete all existing items
+      Repo.delete_all(from(i in Item, where: i.list_id == ^list.id))
     
-    # Create new items
-    Enum.each(items, fn item_attrs ->
-      %Item{}
-      |> Item.changeset(Map.put(item_attrs, :list_id, list.id))
-      |> Repo.insert!()
+      # Create new items
+      Enum.each(items, fn item_attrs ->
+	%Item{}
+	|> Item.changeset(Map.put(item_attrs, :list_id, list.id))
+	|> Repo.insert!()
+      end)
+    
+      updated_list
     end)
-    
-    updated_list
-  end)
-end
+  end
 
   def get_list_by_slug!(slug) do
     Repo.get_by!(TopTenList, slug: slug)

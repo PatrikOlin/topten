@@ -54,6 +54,8 @@ defmodule TopTenWeb do
       use Phoenix.LiveView,
         layout: {TopTenWeb.Layouts, :app}
 
+      on_mount {TopTenWeb.UserAuth, :default}
+
       unquote(html_helpers())
     end
   end

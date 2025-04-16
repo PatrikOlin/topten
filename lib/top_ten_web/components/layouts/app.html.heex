@@ -5,6 +5,11 @@
 	 <img src={~p"/images/top10.svg"} alt="TOP10 Logo" class="h-12" />
       </a>
     </div>
+      <div class="flex flex-row gap-8 items-center">
+	<span class="flex flex-col font-semibold text-sm text-lorange-100">
+	  <p class="text-stone-200">Användare:</p>
+	  <p><%= assigns[:current_user][:name] || "Gäst" %></p>
+	</span>
       <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
 	     <a href="/lists/new" class="bg-lorange-100 flex flex-row gap-2 hover:bg-lorange-80 text-white font-bold py-2 px-4 rounded">
 	  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -13,6 +18,7 @@
 	   Skapa ny lista
         </a>
     </div>
+   </div>
   </div>
 </header>
 <main class="px-4 pt-8 pb-16 sm:px-6 lg:px-8">

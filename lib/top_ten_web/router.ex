@@ -8,6 +8,7 @@ defmodule TopTenWeb.Router do
     plug :put_root_layout, html: {TopTenWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug TopTenWeb.Plugs.UserIdentity
   end
 
   pipeline :api do
